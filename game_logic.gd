@@ -16,9 +16,7 @@ extends Node3D
 @onready var dog_bed: MeshInstance3D = $dwad/dog_bed
 var dogs = []
 
-
-# this is the main code
-
+# constants
 const CUTSCENE_1_COMPLETE = 1 << 0 # bit shift operator
 const CUTSCENE_BED_1_COMPLETE = 1 << 1 # 0x02 (00000010)
 const CUTSCENE_GRANDMOTHER  = 1 << 2  # 0x04 (00000100)
@@ -26,6 +24,8 @@ const SCENE_BED_2_COMPLETE = 1 << 3 # 0x08 (00001000)
 const CUTSCENE_BED_2_COMPLETE = 1 <<  4 # 00010000
 const CUTSCENE_DOG_DYING_COMPLETE = 1 << 5 #00100000)
 const SCENE_BED_2_START = 1 << 6 
+
+
 # here we use bitflags to track game progression. this is so we can have side quests 
 # or quests added in the future without using loads of booleans or having to shift numbers around
 # in the future to make room for other quests
