@@ -25,6 +25,7 @@ const CUTSCENE_GRANDMOTHER  = 1 << 2  # 0x04 (00000100)
 const SCENE_BED_2_COMPLETE = 1 << 3 # 0x08 (00001000)
 const CUTSCENE_BED_2_COMPLETE = 1 <<  4 # 00010000
 const CUTSCENE_DOG_DYING_COMPLETE = 1 << 5 #00100000)
+const SCENE_BED_2_START = 1 << 6 
 # here we use bitflags to track game progression. this is so we can have side quests 
 # or quests added in the future without using loads of booleans or having to shift numbers around
 # in the future to make room for other quests
@@ -140,14 +141,15 @@ func cutscene_grandmother():
 		tasks.tasks_visible(true)
 
 func scene_bedroom_2():
-	if not check_bitflag(STORY_STAGE, SCENE_BED_2_COMPLETE) and check_bitflag(STORY_STAGE, CUTSCENE_GRANDMOTHER):
+	if not check_bitflag(STORY_STAGE, SCENE_BED_2_START) and check_bitflag(STORY_STAGE, CUTSCENE_GRANDMOTHER):
 		print("[SCENE_BED_2]: entered")
-		STORY_STAGE = set_bitflag(STORY_STAGE, CUTSCENE_BED_1_COMPLETE)
+		STORY_STAGE = set_bitflag(STORY_STAGE, SCENE_BED_2_START)
 		tasks.tasks_visible(false)
 		$sounds/argument_2.play()
 		await delay(25000) # sound is 25 seconds long
 		tasks.set_text("Task: Go to sleep")
 		tasks.tasks_visible(true)
+		STORY_STAGE = set_bitflag(STORY_STAGE, SCENE_BED_2_COMPLETE)
 		
 func cutscene_bed_2():
 	if not check_bitflag(STORY_STAGE, CUTSCENE_BED_2_COMPLETE) and check_bitflag(STORY_STAGE, SCENE_BED_2_COMPLETE):
@@ -172,8 +174,10 @@ func cutscene_dog_dying():
 		STORY_STAGE = set_bitflag(STORY_STAGE, CUTSCENE_DOG_DYING_COMPLETE)
 		var scene = Scene.new(self, $cameras/cam_0, $CharacterBody3D/neck/Camera3D, $CharacterBody3D, true)
 		tasks.tasks_visible(false)
-
-				
+		await delay(8000)
+		$CharacterBody3D/ui/sleep.fade_out(3) 
+		# credits
+		
 	
 func _ready() -> void:
 	# DEBUG: start game after cutscene 1
@@ -182,10 +186,13 @@ func _ready() -> void:
 	dogs = [dog_dead, dog_front_door, dog_bed]
 	for dog in dogs: # make dogs invisible
 		dog.visible = false
+	# yes, my custom listen_signal supports multiple functions connected to the same trigger
 	area_triggers.listen_signal("trigger_argument_1", cutscene_1) # connect the area trigger to the cutscene function
 	area_triggers.listen_signal("trigger_bed", cutscene_bed_1) 
-	area_triggers.listen_signal("trigger_bed", scene_bedroom_2) # this is intentional
+	area_triggers.listen_signal("trigger_bed", cutscene_bed_2) # this is intentional
+	area_triggers.listen_signal("trigger_bedroom", scene_bedroom_2)
 	area_triggers.listen_signal("trigger_grandmother", cutscene_grandmother)
+	area_triggers.listen_signal("trigger_dog_dead", cutscene_dog_dying)
 	blinds.set_night() # remove emissive object behind blinds
 	
 	
