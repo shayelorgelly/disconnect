@@ -24,6 +24,7 @@ const SCENE_BED_2_COMPLETE = 1 << 3 # 0x08 (00001000)
 const CUTSCENE_BED_2_COMPLETE = 1 <<  4 # 00010000
 const CUTSCENE_DOG_DYING_COMPLETE = 1 << 5 #00100000)
 const SCENE_BED_2_START = 1 << 6 
+const CUTSCENE_BED_1_START = 1 << 7
 
 
 # here we use bitflags to track game progression. this is so we can have side quests 
@@ -103,9 +104,9 @@ func cutscene_1():
 		
 		
 func cutscene_bed_1():
-	if not check_bitflag(STORY_STAGE, CUTSCENE_BED_1_COMPLETE) and check_bitflag(STORY_STAGE, CUTSCENE_1_COMPLETE):
+	if not check_bitflag(STORY_STAGE, CUTSCENE_BED_1_START) and check_bitflag(STORY_STAGE, CUTSCENE_1_COMPLETE):
 		print("[CUTSCENE_BED_1]: entered")
-		STORY_STAGE = set_bitflag(STORY_STAGE, CUTSCENE_BED_1_COMPLETE)
+		STORY_STAGE = set_bitflag(STORY_STAGE, CUTSCENE_BED_1_START)
 		tasks.tasks_visible(false)
 		$dwad/dog_bed.visible = true
 		var scene = Scene.new(self, $cameras/cam_2, $CharacterBody3D/neck/Camera3D, $CharacterBody3D, true) # setup the scene
@@ -117,8 +118,10 @@ func cutscene_bed_1():
 		scene.cleanup()
 		$CharacterBody3D/ui/sleep.fade_in(3)
 		await delay(7000 + 3000) # add fade in delay
+		$sounds/door_knock.play()
 		tasks.set_text("Investigate the knocking")
 		tasks.tasks_visible(true)
+		STORY_STAGE = set_bitflag(STORY_STAGE, CUTSCENE_BED_1_COMPLETE)
 		
 
 func cutscene_grandmother():
