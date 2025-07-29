@@ -174,15 +174,18 @@ func cutscene_dog_dying():
 		STORY_STAGE = set_bitflag(STORY_STAGE, CUTSCENE_DOG_DYING_COMPLETE)
 		var scene = Scene.new(self, $cameras/cam_0, $CharacterBody3D/neck/Camera3D, $CharacterBody3D, true)
 		tasks.tasks_visible(false)
+		$sounds/dog_dying.play()
 		await delay(8000)
 		$CharacterBody3D/ui/sleep.fade_out(3) 
 		# credits
+		await delay(3000) # wait for fade out as its non blocking
+		$CharacterBody3D/ui/credits.visible = true
 		
 	
 func _ready() -> void:
 	# DEBUG: start game after cutscene 1
-	if OS.is_debug_build():
-		STORY_STAGE = STORY_STAGE | CUTSCENE_1_COMPLETE
+	#if OS.is_debug_build():
+		#STORY_STAGE = STORY_STAGE | CUTSCENE_1_COMPLETE
 	dogs = [dog_dead, dog_front_door, dog_bed]
 	for dog in dogs: # make dogs invisible
 		dog.visible = false
